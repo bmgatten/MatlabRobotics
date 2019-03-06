@@ -1,7 +1,8 @@
 # MatlabRobotics
-##UC Davis MAE 252 Class Project
-###Using Protected Matlab Files 
-'''matlab
+## UC Davis MAE 252 Class Project
+### Using Protected Matlab Files 
+
+```Matlab
 function [q_true_next, odo] = robot_odo(q_true, u, umin, umax,Qmin, Qmax, L, tau_gamma, tau_v)
 % model of a vehicle with closed loop steering and velocity control
 % the combined effect of steering/vehicle inertia and control is
@@ -24,4 +25,4 @@ function [q_true_next, odo] = robot_odo(q_true, u, umin, umax,Qmin, Qmax, L, tau
 
 function [ x_n, y_n, theta_n ] = GPS_CompassNoisy( x, y, theta )
 % function accepts as arguments the true pose of the robot (from q_true) and returns a noisy measurement of the pose. Angle is in radians.
-'''
+```
