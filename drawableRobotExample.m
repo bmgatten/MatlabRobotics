@@ -78,3 +78,5 @@ hold on;
 robot.DrawRobot(frame)
 %Notice the vehicle has moved up!
 
+%See DrawableRobot.m for more methods
+
