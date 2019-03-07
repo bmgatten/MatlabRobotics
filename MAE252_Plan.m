@@ -125,3 +125,42 @@ scatter(path(1,:),path(2,:));
         scatter(path(1,i),path(2,i));
         pause(0.00001);
     end
+
+
+%Define constants
+    %integration constants
+dT = 0.001;          %seconds
+DT = 0.01;           %seconds
+%start coordinates
+start = [path(1,1), path(2,1)] %m
+
+%todo: verify constants and make sure they are correct
+
+%constants struct (needed for object)
+C = struct('W', W,...     %center-to-center row distance [m]
+  'swX', 20-W/2, ...      %x offset of southwest corner of grid of trees
+  'swY', 20, ...          %y offset of southwest corner of grid of trees
+  'L', L,...              %wheelbase [m]
+  'start', start, ...     %start coordinates
+  'Rw', 0.5,...           %radius [m]
+  'Vmax', vd,...          %v max     [m/s]
+  'Gmax', gammaMax,...        %gamma max [radians]
+  'Ld',   2.2,...         %min distance to first navigatable point [meters]
+  'dt',   dT,...          %seconds
+  'DT',   DT,...          %seconds
+  'T',    600.0,...       %total move to point time allowed
+  'RL', 20, ...           %row length [m]
+  'HUGE', 10^9,...        %discouraging cost
+  'ptsPerMeter', 2,...    %points to plot per meter
+  'posEpsilon', 0.2,...   %position requirement
+  'rangeMax' , 20, ...   %max range of laser
+  'angleSpan', deg2rad(180), ...  %angle span of laser sweep
+  'angleStep', deg2rad(0.125), ... %step of laser sweep
+  'occThresh', 0.5,...    %occupancy threshold
+  'endI', endI,...        %number of nodes
+  'K', K, ...             %tree rows
+  'Rmin', L / tan(gammaMax),... %Min turning radius
+  'MULT', 5, ...          %multiplier
+  'redrawT',0.2 / vd,...  %# of DT to redraw robot for pursuit controller
+  'aniPause', 0.001 ...   %animation pause
+  );

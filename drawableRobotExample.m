@@ -69,13 +69,18 @@ C = struct('W', W,...     %center-to-center row distance [m]
   );
 
 
-
-s = 0;
-for i=1:100 %move the robot 100X
-    robot.Move_EulerAckFK(gammaD, vd, C, s, skidDR, skidDF, tauV, tauG)
-end
 hold on;
-robot.DrawRobot(frame)
+s = 0;
+pathPoint = 'b.'; %robot path is in blue dots
+for i=1:2000 %move the robot 100X
+    redraw = mod(i,C.redrawT); %whether or not to redraw
+    prePos = [robot.x, robot.y]; 
+    robot.Move_EulerAckFK(gammaD, vd, C, s, skidDR, skidDF, tauV, tauG)
+    if(redraw)
+        robot.RedrawRobot(frame, prevPos, pathPoint);
+    end
+    pause(.1); 
+end
 %Notice the vehicle has moved up!
 
 %See DrawableRobot.m for more methods
