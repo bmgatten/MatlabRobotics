@@ -2,7 +2,7 @@
 %start with an initial state/vehicle constants
 x = 0; %m
 y = 0; %m
-start = [x,y]
+start = [x,y];
 theta = pi/2; %rad
 wheelRadius = .5; %m, radius of the tire
 L = .5; %m, wheel base

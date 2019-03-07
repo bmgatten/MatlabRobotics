@@ -1,7 +1,7 @@
 clear
 clc
 close all
-plantrows = 12;
+plantrows = 15;
 plants = 10;
 [map,ogmap,truth] = NDVIMap(plantrows,plants);
 maptest = map;
@@ -9,6 +9,7 @@ MDL = open('predictionmodel2.mat');
 MDL = MDL.MDL;
 colidx = floor(linspace(1,1024,plantrows+1));
 rowidx = floor(linspace(1,786,plants+1));
+imshow(map,'InitialMagnification','fit');
 %%
 newmap = zeros(plants,plantrows,3);
 

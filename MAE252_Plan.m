@@ -34,8 +34,8 @@ DMAT = zeros(2*N+2,2*N+2);
 for i = 2:N+1
     for j = N+2:2*N+1
         if (j-i) == N
-            DMAT(i,j) = 0;
-            DMAT(j,i) = 0;
+            DMAT(i,j) = -huge/2;
+            DMAT(j,i) = -huge/2;
         else
             DMAT(i,j) = huge;
             DMAT(j,i) = huge;
@@ -115,7 +115,7 @@ for i = 1:2*N+1
     end
     
 end
-scatter(path(1,:),path(2,:));
+%scatter(path(1,:),path(2,:));
  %%
     figure
     axis([-10 20 -5 30]);
@@ -226,7 +226,7 @@ q = [0 0 0 0 0]; %initialize a robot w/zero for all states.
 u = [0 0]; %initialize zero for steering and speed inputs.
 for i=1:Ni
     [wx(i), wy(i), wtheta(i)] = GPS_CompassNoisy(q(X), q(Y), q(THETA));
-    [~, odo(i,:)] = robot_odo(q, u, Umin, Umax, Qmin, Qmax, L, tauG, tauV); 
+    [q,odo(i,:)] = robot_odo(q, u, Umin, Umax, Qmin, Qmax, L, tauG, tauV); 
 end
 A = [wx; wy; wtheta]';
 B = [odo(:,1) odo(:,2)];
