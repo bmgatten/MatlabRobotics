@@ -1,0 +1,23 @@
+function [bitmap] = createBitmap(truth,xy,xMax,xMin,yMax,yMin)
+%UNTITLED2 Summary of this function goes here
+%   Detailed explanation goes here
+global N RL
+
+ydim = yMax-yMin;
+xdim = xMax-xMin;
+
+bitmap = zeros(xdim,ydim);
+
+xEnds = xy(2:6,:);
+for i = 1:N
+    if truth(1,i,1)==1 && truth(1,i,2)==0 %%red
+        bitmap(ydim-RL-abs(xMin):xdim-abs(yMin),xEnds(i)+abs(xMin)) = 1;
+    elseif truth(1,i,1)==1 && truth(1,i,2)==0.5
+        bitmap(ydim-RL-abs(xMin):xdim-abs(yMin),xEnds(i)+abs(xMin)) = 0.5;
+    else
+        bitmap(ydim-RL-abs(xMin):ydim-abs(yMin),xEnds(i)+abs(xMin)) = 0.25;
+    end
+end
+
+end
+
