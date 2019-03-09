@@ -16,13 +16,13 @@ numpoints = 50;
 N = 5; %number of rows
 W = 2.5; %implement width m
 RL = 20; %row length m
-GammaMax = deg2rad(60); %degrees
-GammaMin = -GammaMax;
+gammaMax = deg2rad(60); %degrees
+GammaMin = -gammaMax;
 L = 3; %wheel base m
 x = [-W, W/2:W:(N)*W, W/2:W:(N)*W, -W];
 y = [RL/2, zeros(1,N), RL*ones(1,N), RL/2];
 xy = [x;y].';
-Rmin = L/tan(GammaMax);
+Rmin = L/tan(gammaMax);
 %% Compute non-turning costs aij 
 %Create cost table DMAT
 %Moving from ANY lower headland to ANY upper headland
@@ -34,8 +34,8 @@ DMAT = zeros(2*N+2,2*N+2);
 for i = 2:N+1
     for j = N+2:2*N+1
         if (j-i) == N
-            DMAT(i,j) = 0;
-            DMAT(j,i) = 0;
+            DMAT(i,j) = -huge/2;
+            DMAT(j,i) = -huge/2;
         else
             DMAT(i,j) = huge;
             DMAT(j,i) = huge;
@@ -115,7 +115,7 @@ for i = 1:2*N+1
     end
     
 end
-scatter(path(1,:),path(2,:));
+%scatter(path(1,:),path(2,:));
  %%
     figure
     axis([-10 20 -5 30]);
@@ -123,20 +123,18 @@ scatter(path(1,:),path(2,:));
     
     for i = 1:length(path)
         scatter(path(1,i),path(2,i));
-        pause(0.00001);
+%         pause(0.0000000001);
     end
+%% Create a robot object to traverse the given path
 
+start = [path(1,1), path(2,1)]; %m, starting position/coordinates of the robot
+vd = 3; %m/s, velocity
+%integration constants
+dT = .001;%s, small integration constnat
+DT = .1;%s, large integration constant
+endI = 2*N+1; %? number of nodes in TSP
+K = N; %Number of tree rows
 
-%Define constants
-    %integration constants
-dT = 0.001;          %seconds
-DT = 0.01;           %seconds
-%start coordinates
-start = [path(1,1), path(2,1)] %m
-
-%todo: verify constants and make sure they are correct
-
-%constants struct (needed for object)
 C = struct('W', W,...     %center-to-center row distance [m]
   'swX', 20-W/2, ...      %x offset of southwest corner of grid of trees
   'swY', 20, ...          %y offset of southwest corner of grid of trees
@@ -164,3 +162,129 @@ C = struct('W', W,...     %center-to-center row distance [m]
   'redrawT',0.2 / vd,...  %# of DT to redraw robot for pursuit controller
   'aniPause', 0.001 ...   %animation pause
   );
+pathPoint = 'b.'; %robot path is in blue dots
+%% Instantiate a robot object. 
+%starting point of the robot
+x = path(1,1);
+y = path(2,1);
+theta = atan2(path(2,2)-y,path(1,2)-x);
+vMax = vd; %m/s, max velocity of the robot
+wheelRadius = .5; %m
+lD = 2; %m
+% lD = sqrt((path(1,1) - start(1)).^2 + (path(2,1) - start(2)).^2); %m, distance to first navigatable point
+%instantiate robot object
+robot = DrawableRobot(x,y,theta, wheelRadius, L, gammaMax, vMax, lD);
+
+%more constants
+skidDR = 0;
+skidDF = 0;
+tauG = 0.1;          %s, steering lag
+tauV = 0.2;          %s, velocity lag
+
+%maximum and minimum positions
+xMax = N*W + 10; %m, maximum horizontal and vehicle position
+yMax = RL + 10; %m
+xMin = -10; %m
+yMin = -10; %m
+
+x_im = [xMin xMax]; y_im = [yMin yMax];
+frame = [x_im, y_im]; %frame to draw the robot
+
+robot.DrawRobot(frame)
+%% Traverse the path with the robot.
+robot.dim = [0.5, 1.2] ;%1/2length, 1/2width i.e. 3m long, 2.4m wide
+prev = 1;    %previous point on the path to follow
+planner = PathPlanner(path);
+%indicies of various parameters
+X = 1;
+Y = 2;
+THETA = 3;
+GAMMA = 4;
+VEL = 5;
+%initialize starting pose for the robot
+kPose = [start(X); start(Y); theta];
+PRINT_MAP = true;
+if PRINT_MAP
+  lookAhead = plot(path(X, 3), path(Y, 3), 'k*');
+end
+%% Find covariance matrices
+%State limits
+Qmax = zeros(1, 5);
+Qmax(X) = Inf; Qmax(Y) = Inf; Qmax(THETA) = Inf;
+Qmax(GAMMA) = gammaMax; Qmax(VEL) = vd;
+Qmin = -Qmax; % symmetrical negative constraints for minimum values
+% Control constraints
+Umax=[gammaMax vd]';
+Umin= -Umax;
+
+Ni = 10000; 
+wx = zeros(1,Ni);
+wy = zeros(1,Ni);
+wtheta = zeros(1,Ni);
+odo = zeros(Ni,2);
+q = [0 0 0 0 0]; %initialize a robot w/zero for all states.
+u = [0 0]; %initialize zero for steering and speed inputs.
+for i=1:Ni
+    [wx(i), wy(i), wtheta(i)] = GPS_CompassNoisy(q(X), q(Y), q(THETA));
+    [q,odo(i,:)] = robot_odo(q, u, Umin, Umax, Qmin, Qmax, L, tauG, tauV); 
+end
+A = [wx; wy; wtheta]';
+B = [odo(:,1) odo(:,2)];
+W = cov(A); %covariance of sensor noise
+V = cov(B); %covariance of odometry noise
+%Initialize uncertainty matrix
+P = zeros(3,3);
+
+%initialize robot pose
+robot.x = kPose(X);
+robot.y = kPose(Y);
+robot.theta = kPose(THETA);
+%%
+%-----------------------MAIN MOTION LOOP---------------------------------
+for t = 0:C.DT:(C.T - C.DT)
+  redraw = mod(t, C.redrawT) == 0;  %whether to redraw this iteration or not
+
+  %robot.Move_EulerAckFK(gammaD, vd, C, s, skidDR, skidDF, tauV, tauG);
+  savePose = [robot.x, robot.y, robot.theta];
+  [xsensed, ysensed, thetasensed] = GPS_CompassNoisy(savePose(X), ...
+    savePose(Y), savePose(THETA));
+   
+  z = [xsensed; ysensed; thetasensed];
+  
+%   [kPose, P] = nurseryEKF(kPose, odo, z, P, V, W);
+%   %use estimated position for navigation controller
+%   robot.x = kPose(X);
+%   robot.y = kPose(Y);
+%   robot.theta = kPose(THETA);
+  
+  [gammaD, ~, prev, errX, errY] = planner.FirstFeasiblePoint(robot, prev);
+  if PRINT_MAP
+    figure(2)
+    delete(lookAhead)
+    %plot lookahead point
+    lookAhead = plot(path(X, prev), path(Y, prev), 'k*');
+  end
+  
+  %use true pose for motion simulation
+  q0 = [savePose(X); savePose(Y); savePose(THETA); robot.gamma; robot.v];
+  u = [gammaD; vd]; %todo: change -gammaD?
+  [q, odo] = robot_odo(q0, u, Umin, Umax, Qmin, Qmax, L, tauG, tauV);
+  
+  %set robot to new position for drawing
+  robot.x = q(X); 
+  robot.y = q(Y);
+  robot.theta = savePose(THETA) - (q(THETA) - savePose(THETA));
+  robot.gamma = q(GAMMA);
+  robot.v = q(VEL);
+  
+  if redraw && PRINT_MAP
+    figure(2)
+    prevPos = [robot.x, robot.y];
+    robot.RedrawRobot(frame, prevPos, pathPoint)
+    pause(C.aniPause)
+  end
+    
+  if prev == planner.nPoints && abs(errX) + abs(errY) < C.posEpsilon
+    break   % stop if navigating to last path point and position close
+  end
+end
