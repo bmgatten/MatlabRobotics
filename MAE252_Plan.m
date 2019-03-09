@@ -1,5 +1,7 @@
 clear
 clc
+addpath(genpath('functionsAndClasses'));
+addpath(genpath('rvctools'));
 %% Place (0,0) at the south west corner of the field
 %Rectangular field
 %N = 5 rows, RL = 20 m, W = 2.5 m,
@@ -10,7 +12,7 @@ clc
 %% Create two vectors x and y - storing the coordinates of all the nodes
 %Distance W/2
 %x(i) = x(i-1)+w -- x(N+1) = x(N)+w
-global RL N Rmin numpoints W
+global RL N Rmin numpoints W dT DT
 
 numpoints = 50;
 N = 10; %number of rows
