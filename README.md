@@ -20,6 +20,7 @@ function [q_true_next, odo] = robot_odo(q_true, u, umin, umax,Qmin, Qmax, L, tau
 %
 % the model returns the next state q1 and noisy odometry, i.e.,
 % distance traveled in DT in odo(1) and angle change in DT in odo(2).
+% note:robot_odo relies on global integration constants dT and DT. 
 
 
 
