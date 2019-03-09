@@ -13,7 +13,7 @@ clc
 global RL N Rmin numpoints W
 
 numpoints = 50;
-N = 10; %number of rows
+N = 5; %number of rows
 W = 2.5;
 %W = 2.5; %implement width m
 RL = 20; %row length m
@@ -115,8 +115,8 @@ route = [1 resultStruct.optRoute 2*N+2];
 resultStruct.minDist
 %%
 route(end)=length(route);
-%[~,routesort]=sort(route); %Get the order of B
-route=original(route);
+[~,routesort]=sort(route); %Get the order of B
+route=original(routesort);
 
 %% Path making
 path = [];
@@ -333,3 +333,5 @@ for t = 0:C.DT:(C.T - C.DT)
     break   % stop if navigating to last path point and position close
   end
 end
+
+

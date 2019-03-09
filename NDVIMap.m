@@ -1,4 +1,4 @@
-function [noised,ogmap,truth] = NDVIMap(numrow,~)
+function [noised,ogmap,truth] = NDVIMap(numrow,RL)
 %function to make NDVI map for MAE 252
 %   output meanings
 %   noised = the final output with the noise added
@@ -61,7 +61,7 @@ ogmap = imresize(map,[786 1024]);
 h = fspecial('motion',75,randi(60));
 blurred = imfilter(ogmap,h);
 noised = imnoise(blurred,'speckle',0.03);
-imshow(noised,'InitialMagnification','fit')
+% imshow(noised,'InitialMagnification','fit')
 
 end
 
