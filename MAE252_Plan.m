@@ -16,7 +16,7 @@ global RL N Rmin numpoints W dT DT
 
 numpoints = 50;
 N = 10; %number of rows
-W = 2.5;
+W = 2.5; %m, row width
 %W = 2.5; %implement width m
 RL = 20; %row length m
 gammaMax = deg2rad(60); %degrees
@@ -172,7 +172,7 @@ end
 %% Create a robot object to traverse the given path
 
 start = [path(1,1), path(2,1)]; %m, starting position/coordinates of the robot
-vd = 3; %m/s, velocity
+vd = 1; %m/s, velocity
 %integration constants
 dT = .001;%s, small integration constnat
 DT = .1;%s, large integration constant
@@ -295,14 +295,13 @@ for t = 0:C.DT:(C.T - C.DT)
   savePose = [robot.x, robot.y, robot.theta];
   [xsensed, ysensed, thetasensed] = GPS_CompassNoisy(savePose(X), ...
     savePose(Y), savePose(THETA));
-   
-  z = [xsensed; ysensed; thetasensed];
-  
-%   [kPose, P] = nurseryEKF(kPose, odo, z, P, V, W);
-%   %use estimated position for navigation controller
-%   robot.x = kPose(X);
-%   robot.y = kPose(Y);
-%   robot.theta = kPose(THETA);
+
+  z = [xsensed; ysensed; thetasensed]; %measurements
+  [kPose, P] = nurseryEKF(kPose, odo, z, P, V, W);
+  %use estimated position for navigation controller
+  robot.x = kPose(X);
+  robot.y = kPose(Y);
+  robot.theta = kPose(THETA);
   
   [gammaD, ~, prev, errX, errY] = planner.FirstFeasiblePoint(robot, prev);
   if PRINT_MAP
@@ -314,7 +313,7 @@ for t = 0:C.DT:(C.T - C.DT)
   
   %use true pose for motion simulation
   q0 = [savePose(X); savePose(Y); savePose(THETA); robot.gamma; robot.v];
-  u = [gammaD; vd]; %todo: change -gammaD?
+  u = [gammaD; vd];
   [q, odo] = robot_odo(q0, u, Umin, Umax, Qmin, Qmax, L, tauG, tauV);
   
   %set robot to new position for drawing
