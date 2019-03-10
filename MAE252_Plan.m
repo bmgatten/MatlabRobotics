@@ -194,7 +194,7 @@ C = struct('W', W,...     %center-to-center row distance [m]
   'RL', 20, ...           %row length [m]
   'HUGE', 10^9,...        %discouraging cost
   'ptsPerMeter', 2,...    %points to plot per meter
-  'posEpsilon', 0.2,...   %position requirement
+  'posEpsilon', 0.5,...   %position requirement
   'rangeMax' , 20, ...   %max range of laser
   'angleSpan', deg2rad(180), ...  %angle span of laser sweep
   'angleStep', deg2rad(0.125), ... %step of laser sweep
