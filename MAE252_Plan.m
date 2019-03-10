@@ -288,6 +288,12 @@ robot.theta = kPose(THETA);
 figure(2)
   hold on
   scatter(path(1,:),path(2,:))
+    xvals = xy(2:N+1,1);
+
+    for it = 1:length(xvals)
+        colorofrow = truth(1,it,:);
+        scatter(xvals(it)*ones(1,RL),1:20,'s','MarkerFaceColor',colorofrow,'MarkerEdgeColor',colorofrow)
+    end
 for t = 0:C.DT:(C.T - C.DT)
   redraw = mod(t, C.redrawT) == 0;  %whether to redraw this iteration or not
 
@@ -333,4 +339,14 @@ for t = 0:C.DT:(C.T - C.DT)
   if prev == planner.nPoints && abs(errX) + abs(errY) < C.posEpsilon
     break   % stop if navigating to last path point and position close
   end
+end
+%%
+
+figure(2)
+hold on
+xvals = xy(2:N+1,1);
+
+for it = 1:length(xvals)
+    colorofrow = truth(1,it,:);
+    scatter(xvals(it)*ones(1,RL),1:20,'s','MarkerFaceColor',colorofrow,'MarkerEdgeColor',colorofrow)
 end
