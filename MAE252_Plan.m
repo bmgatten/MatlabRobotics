@@ -1,5 +1,6 @@
 clear
 clc
+close all
 addpath(genpath('functionsAndClasses'));
 addpath(genpath('rvctools'));
 %% Place (0,0) at the south west corner of the field
@@ -15,13 +16,13 @@ addpath(genpath('rvctools'));
 global RL N Rmin numpoints W dT DT
 
 numpoints = 50;
-N = 10; %number of rows
-W = 2.5; %m, row width
+N = 20; %number of rows
+W = 1.5; %m, row width
 %W = 2.5; %implement width m
 RL = 20; %row length m
 gammaMax = deg2rad(60); %degrees
 GammaMin = -gammaMax;
-L = 3; %wheel base m
+L = 2; %wheel base m
 x = [-W, W/2:W:(N)*W, W/2:W:(N)*W, -W];
 y = [RL/2, zeros(1,N), RL*ones(1,N), RL/2];
 xy = [x;y].';
@@ -136,9 +137,10 @@ for i = 1:length(route)-1
     end
     
     if i == 1
-        path = [current(1)*ones(1,numpoints);linspace(current(2),next(2),numpoints)];
-        turnpath = PiTurn(current,next,route(i+1));
-        path = [path turnpath];
+            path = [current(1)*ones(1,numpoints);linspace(current(2),next(2),numpoints)];
+            turnpath = PiTurn(current,next,route(i+1));
+            path = [path turnpath];
+       
     elseif i==length(route)-1 %i==2*N+1
         pathturn = PiTurn(current,next,route(i));
         pathstraight = [next(1)*ones(1,numpoints);linspace(current(2),next(2),numpoints)];
@@ -148,7 +150,7 @@ for i = 1:length(route)-1
         if abs(d)==N
             pathn = [current(1)*ones(1,numpoints);linspace(current(2),next(2),numpoints)];
         else
-            if abs(route(i)-route(i+1))==1
+            if abs(route(i)-route(i+1))==1 %||  L/tan(gammaMax) < W*abs(route(i)-route(i+1)) %if turning radius is less than the row width * distance over
                 pathn = OmegaTurn(current,next,route(i),route(i+1));
                 pathn=pathn';
             else
@@ -287,12 +289,12 @@ robot.theta = kPose(THETA);
 %-----------------------MAIN MOTION LOOP---------------------------------
 figure(2)
   hold on
-  scatter(path(1,:),path(2,:))
+  scatter(path(1,:),path(2,:));
     xvals = xy(2:N+1,1);
 
     for it = 1:length(xvals)
         colorofrow = truth(1,it,:);
-        scatter(xvals(it)*ones(1,RL),1:20,'s','MarkerFaceColor',colorofrow,'MarkerEdgeColor',colorofrow)
+        scatter(xvals(it)*ones(1,RL),1:RL,'s','MarkerFaceColor',colorofrow,'MarkerEdgeColor',colorofrow)
     end
 for t = 0:C.DT:(C.T - C.DT)
   redraw = mod(t, C.redrawT) == 0;  %whether to redraw this iteration or not
@@ -339,14 +341,4 @@ for t = 0:C.DT:(C.T - C.DT)
   if prev == planner.nPoints && abs(errX) + abs(errY) < C.posEpsilon
     break   % stop if navigating to last path point and position close
   end
-end
-%%
-
-figure(2)
-hold on
-xvals = xy(2:N+1,1);
-
-for it = 1:length(xvals)
-    colorofrow = truth(1,it,:);
-    scatter(xvals(it)*ones(1,RL),1:20,'s','MarkerFaceColor',colorofrow,'MarkerEdgeColor',colorofrow)
 end
