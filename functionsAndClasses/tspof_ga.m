@@ -136,7 +136,7 @@ function varargout = tspof_ga(varargin)
     [N,dims] = size(xy);
     [nr,nc] = size(dmat);
     if N ~= nr || N ~= nc
-        error('Invalid XY or DMAT inputs!')
+        error('Invalid XY or DMAT inputs!');
     end
     n = N - 2; % Separate Start and End Cities
     
