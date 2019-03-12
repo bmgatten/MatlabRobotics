@@ -3,7 +3,7 @@ function [outmap,error] = Mapfilter(noisymap,trutharray,numrow,nplants,print)
 % Name: FiltNDVIMap.m
 % Author: Guilherme De Moura Araujo, Benjamin Gatten, Vivian Vuong
 % Created: 03-11-2019
-% Revised: xx-xx-20xx
+% Revised: 03-12-2019
 % OBS: Final project of UC Davis MAE252 class 
 % This function uses the MachineLearning_Training model to filter a noisy map
 % Output returned is an array with the mean predictions of each row for the
@@ -13,8 +13,11 @@ plantrows = numrow;
 plants = nplants;
 maptest = noisymap; %Noisy map from NDVI function
 print = print;
-MDL = open('predictionmodel2.mat'); %loadCompactModel(MAE252.m);
-MDL = MDL.MDL; %Comment out
+%MDL = open('predictionmodel2.mat'); 
+%MDL = MDL.MDL; %Comment out
+MDL = loadCompactModel('MAE252.mat'); %Always use this piece of code instead of lines 16 and 17 -
+%'predictionmodel12.mat' is the wrong model and must be used for debugging
+%purposes only
 colidx = floor(linspace(1,1024,plantrows+1)); %set the output map to size of rows x plants
 rowidx = floor(linspace(1,786,plants+1)); %set the output map to size of rows x plants
 %% Creates a resized map of the true state of field
