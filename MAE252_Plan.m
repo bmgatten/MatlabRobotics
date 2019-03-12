@@ -1,6 +1,5 @@
-clear
-clc
-close all
+close all; clear all; clc;
+
 addpath(genpath('functionsAndClasses'));
 addpath(genpath('rvctools'));
 %% Place (0,0) at the south west corner of the field
@@ -84,14 +83,17 @@ end
 %% Make start and end nodes big
 DMAT(1,2*N+2) = huge; %going from 1 - 2*N+2 huge
 DMAT(2*N+2,1) = huge; %going from 2*N+2 - 1 huge
-%%
+%% Map making
 [map,ogmap,truth] = NDVIMap(N,1);
+
+% Machine learning algorithm to filter the noisy image
+[filtered,errorNDVI] = Mapfilter(map,truth,N,RL,0);
 ogDMAT = DMAT;
 green = [];
 original = 1:2*N+2;
 modxy = xy;
 for it = 1:N
-    if truth(1,it,1)==0 && truth(1,it,2)==0.5 %%green
+    if filtered(1,it,1)==0 && filtered(1,it,2)==0.5 %%green
         green = cat(2,green,it);
         original(original==it+1)=[];
         original(original==it+1+N)=[];
@@ -115,7 +117,7 @@ t = cputime;
 resultStruct = tspof_ga('XY',modxy','DMAT',DMAT,'SHOWRESULT',false,'SHOWWAITBAR',false,'SHOWPROG',false);
 E = cputime-t;
 route = [1 resultStruct.optRoute 2*N+2];
-resultStruct.minDist
+resultStruct.minDist;
 %%
 route(end)=length(route);
 %[~,routesort]=sort(route); %Get the order of B
