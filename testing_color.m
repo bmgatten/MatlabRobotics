@@ -42,4 +42,38 @@ gtruth=gtruth';
 %sometimes ratios are infinity (divide by 0 error)
 %rat3=mapshape(:,2)./mapshape(:,3);
 T = table(mapshape(:,1),mapshape(:,2),mapshape(:,3));
-MDL = fitcdiscr(T,gtruth); %linear disc. to find the model to fit it
+for i=1:length(mapshape) 
+    %first ratio
+    if mapshape(i,1)~= 0 && mapshape(i,2)== 0 
+        mapshape(i,4)=1E10;
+    elseif mapshape(i,1)== 0 && mapshape(i,2)== 0
+        mapshape(i,4)= 0;
+    else        
+        mapshape(i,4)=mapshape(i,1)/mapshape(i,2); %red/green
+    end
+    %second ratio
+    if mapshape(i,1)~= 0 && mapshape(i,3)== 0
+        mapshape(i,5)=1E10;
+    elseif mapshape(i,1)== 0 && mapshape(i,3)== 0
+        mapshape(i,5)= 0;
+    else        
+        mapshape(i,5)=mapshape(i,1)/mapshape(i,3); %red/blue
+    end
+    %third ratio
+    if mapshape(i,2)~= 0 && mapshape(i,3)== 0
+        mapshape(i,6)=1E10;
+    elseif mapshape(i,2)== 0 && mapshape(i,3)== 0
+        mapshape(i,6)= 0;
+    else        
+        mapshape(i,6)=mapshape(i,2)/mapshape(i,3); %green/blue
+    end
+end
+subplot(1,2,2);
+imshow(map);
+title('Nosiy map');
+%hold on
+subplot(1,2,1);
+imshow(ogmap);
+title('Ground thruth map');
+MDL = fitcdiscr(mapshape,gtruth); %linear disc. to find the model to fit it
+%saveCompactModel(MDL,'MAE252');

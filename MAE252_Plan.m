@@ -1,3 +1,15 @@
+%% Header
+% Name: MAE252_Plan.m
+% Author: Guilherme De Moura Araujo, Benjamin Gatten, Vivian Vuong
+% Created: xx-xx-xxxx
+% Revised: 03-12-2019
+% OBS: Final project of UC Davis MAE252 class 
+% This code simulates a spraying robot in an orchard. It utilizes the
+% traveling salesman approach to decide which is the best rout based on
+% NDVI data obtained from previous measurements. Key parameters are the row
+% width, the number of plants per row and the vehicle turning radius.
+
+%%
 close all; clear all; clc;
 
 addpath(genpath('functionsAndClasses'));
