@@ -2,7 +2,7 @@
 ## UC Davis MAE 252 Class Project
 ### Project Scope
 This code simulates a spraying robot in an orchard. It utilizes the Traveling Salesman Algorithm (TSP) to determine an optimal traversal route based on NDVI data obtained from previous measurements. Key parameters are the row width, the number of plants/row, and the vehicle turning radius.
-###Simulation Example:
+### Simulation Example:
 ![test](https://github.com/bmgatten/MatlabRobotics/blob/master/MAE252.gif)
 
 ### Using Protected Matlab Files 
