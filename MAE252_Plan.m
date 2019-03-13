@@ -299,6 +299,9 @@ P = zeros(3,3);
 robot.x = kPose(X);
 robot.y = kPose(Y);
 robot.theta = kPose(THETA);
+%initialize error & loop iteration
+squareError = 0;
+n = 1;
 %%
 %-----------------------MAIN MOTION LOOP---------------------------------
 figure(2)
@@ -324,8 +327,20 @@ for t = 0:C.DT:(C.T - C.DT)
   robot.x = kPose(X);
   robot.y = kPose(Y);
   robot.theta = kPose(THETA);
-  
+  %compute the new steering angle
   [gammaD, ~, prev, errX, errY] = planner.FirstFeasiblePoint(robot, prev);
+  %Find the point on the path closest to the robot for error calc
+  closestPt = [0, 100000]; %path index, error
+  for j=1:length(path)
+      error = sqrt((path(X,j) - robot.x)^2 + (path(Y,j) - robot.y)^2);
+      if error < closestPt(2)
+          closestPt = [j, error]; %update closest pt on the path
+      else
+      end
+  end
+  %add error to the square error    
+  squareError = squareError + closestPt(2);
+  
   if PRINT_MAP
     figure(2)
     delete(lookAhead)
@@ -353,6 +368,9 @@ for t = 0:C.DT:(C.T - C.DT)
   end
     
   if prev == planner.nPoints && abs(errX) + abs(errY) < C.posEpsilon
+      n = n+1;
+      RMSE = sqrt(squareError/n);
     break   % stop if navigating to last path point and position close
   end
+  n=n+1;
 end
